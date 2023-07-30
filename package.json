@@ -1,0 +1,34 @@
+{
+  "name": "tampermonkey-scripts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "1.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development webpack --watch --config webpack.common.js",
+    "build": "cross-env NODE_ENV=production webpack --config webpack.common.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BHORC-Trading-CO/Tampermonkey-scripts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BHORC-Trading-CO/Tampermonkey-scripts/issues"
+  },
+  "homepage": "https://github.com/BHORC-Trading-CO/Tampermonkey-scripts#readme",
+  "devDependencies": {
+    "@total-typescript/ts-reset": "^0.4.2",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "cross-env": "^7.0.3",
+    "html-webpack-plugin": "^5.5.3",
+    "path": "^0.12.7",
+    "ts-loader": "^9.4.4",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}

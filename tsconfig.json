@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "baseUrl": "./",
+    "paths": {
+      "@root/*": ["./*"],
+      "@src/*": ["./src/*"]
+    },
+    "target": "es2021",
+    "lib": ["DOM", "esnext"],
+    "module": "ES6",
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "isolatedModules": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true
+  },
+  "include": ["./**/*", "types.d.ts", "reset.d.ts", "node_modules/@types"],
+  "exclude": ["dist", "firebase", "tests"]
+}
