@@ -1,4 +1,4 @@
-import { ISkin, ISkinExtends, ProxyObject } from "@src/models/ISkin";
+import { ISkin, ISkinExtends, ISkinSell, ISkinSellExtends, ProxyObject } from "@src/models/ISkin";
 import { config } from "@src/ts/Config";
 import { EnumSelectors } from "@src/ts/EnumSelectors";
 import { EnumURL } from "@src/ts/EnumURL";
@@ -21,14 +21,20 @@ class LimitHighlighter {
   }
   async init() {
     await this.get_limit_skins();
-    this.get_skins_info(EnumSelectors.INVENTORIES_USER, EnumSelectors.INVENTORY_ITEMS_USER);
-    this.get_skins_info(EnumSelectors.INVENTORIES_BOT, EnumSelectors.INVENTORY_ITEMS_BOT);
-    this.get_skins_info(EnumSelectors.INVENTORIES_USER_OFFER, EnumSelectors.INVENTORY_ITEMS_USER_OFFER);
-    this.get_skins_info(EnumSelectors.INVENTORIES_BOT_OFFER, EnumSelectors.INVENTORY_ITEMS_BOT_OFFER);
-    this.set_observer(EnumSelectors.INVENTORIES_USER, EnumSelectors.INVENTORY_ITEMS_USER);
-    this.set_observer(EnumSelectors.INVENTORIES_BOT, EnumSelectors.INVENTORY_ITEMS_BOT);
-    this.set_observer(EnumSelectors.INVENTORIES_USER_OFFER, EnumSelectors.INVENTORY_ITEMS_USER_OFFER);
-    this.set_observer(EnumSelectors.INVENTORIES_BOT_OFFER, EnumSelectors.INVENTORY_ITEMS_BOT_OFFER);
+    // Trade mode
+    this.get_skins_info(EnumSelectors.TRADE_TRADE_MODE_USER_INVENTORY, EnumSelectors.TRADE_TRADE_MODE_USER_INVENTORY_ITEMS);
+    this.get_skins_info(EnumSelectors.TRADE_TRADE_MODE_BOT_INVENTORY, EnumSelectors.TRADE_TRADE_MODE_BOT_INVENTORY_ITEMS);
+    this.get_skins_info(EnumSelectors.TRADE_TRADE_MODE_USER_INVENTORY_OFFER, EnumSelectors.TRADE_TRADE_MODE_USER_INVENTORY_OFFER_ITEMS);
+    this.get_skins_info(EnumSelectors.TRADE_TRADE_MODE_BOT_INVENTORY_OFFER, EnumSelectors.TRADE_TRADE_MODE_BOT_INVENTORY_OFFER_ITEMS);
+    this.set_observer(EnumSelectors.TRADE_TRADE_MODE_USER_INVENTORY, EnumSelectors.TRADE_TRADE_MODE_USER_INVENTORY_ITEMS);
+    this.set_observer(EnumSelectors.TRADE_TRADE_MODE_BOT_INVENTORY, EnumSelectors.TRADE_TRADE_MODE_BOT_INVENTORY_ITEMS);
+    this.set_observer(EnumSelectors.TRADE_TRADE_MODE_USER_INVENTORY_OFFER, EnumSelectors.TRADE_TRADE_MODE_USER_INVENTORY_OFFER_ITEMS);
+    this.set_observer(EnumSelectors.TRADE_TRADE_MODE_BOT_INVENTORY_OFFER, EnumSelectors.TRADE_TRADE_MODE_BOT_INVENTORY_OFFER_ITEMS);
+    // Sell mode
+    this.get_skins_info(EnumSelectors.TRADE_SELL_MODE_USER_INVENTORY, EnumSelectors.TRADE_SELL_MODE_USER_INVENTORY_ITEMS);
+    this.get_skins_info(EnumSelectors.TRADE_SELL_MODE_USER_INVENTORY_SELL_LIST, EnumSelectors.TRADE_SELL_MODE_USER_INVENTORY_SELL_LIST_ITEMS);
+    this.set_observer(EnumSelectors.TRADE_SELL_MODE_USER_INVENTORY, EnumSelectors.TRADE_SELL_MODE_USER_INVENTORY_ITEMS);
+    this.set_observer(EnumSelectors.TRADE_SELL_MODE_USER_INVENTORY_SELL_LIST, EnumSelectors.TRADE_SELL_MODE_USER_INVENTORY_SELL_LIST_ITEMS);
   }
   set_observer(inventory: string, inventory_items: string) {
     const inventory_elem = document.querySelector(inventory);
@@ -49,23 +55,34 @@ class LimitHighlighter {
       const elementProps: string[] = Object.keys(element);
       const reactPropsKey = elementProps.find((key: string) => key.startsWith("__reactProps"));
       if (!reactPropsKey) return;
-      const bot_skin_proxy_info: ProxyObject | undefined = element?.[reactPropsKey]?.children?.[0]?.props?.children?.props?.children?.props?.children?.props?.skin?.skin;
-      const user_skin_proxy_info: ProxyObject | undefined = element?.[reactPropsKey]?.children[0]?.props?.children?.props?.children?.props?.children?.props?.children?.props?.skin?.skin;
-      const skin_proxy_info = bot_skin_proxy_info || user_skin_proxy_info;
+      const trade_trade_mode_user_skin_proxy_info: ProxyObject | undefined =
+        element?.[reactPropsKey]?.children[0]?.props?.children?.props?.children?.props?.children?.props?.children?.props?.skin?.skin;
+      const trade_trade_mode_bot_skin_proxy_info: ProxyObject | undefined = element?.[reactPropsKey]?.children?.[0]?.props?.children?.props?.children?.props?.children?.props?.skin?.skin;
+      const trade_sell_mode_user_skin_proxy_info: ProxyObject | undefined = element?.[reactPropsKey]?.children[2]?.props?.children?.props?.children[4]?.props;
+      const trade_sell_mode_user_sell_list_skin_proxy_info: ProxyObject | undefined = element?.[reactPropsKey]?.children?.props?.item;
+      const skin_proxy_info = trade_trade_mode_bot_skin_proxy_info || trade_trade_mode_user_skin_proxy_info || trade_sell_mode_user_skin_proxy_info || trade_sell_mode_user_sell_list_skin_proxy_info;
+      console.log("🚀 ~ file: index.ts:64 ~ LimitHighlighter ~ returnArray.from ~ skin_proxy_info:", skin_proxy_info);
       if (!skin_proxy_info) return;
-      const skin_info: ISkin = this.recursiveUnProxy<ISkin>(skin_proxy_info);
-      const skin: ISkinExtends = { ...skin_info, element };
-      if (LimitHighlighter.limited_skins.includes(skin.fullName)) this.highlight_skin(skin);
+      const skin_info: ISkin | ISkinSell = this.recursiveUnProxy<ISkin | ISkinSell>(skin_proxy_info);
+      const skin: ISkinExtends | ISkinSellExtends = { ...skin_info, element };
+      if (LimitHighlighter.limited_skins.includes((skin as ISkinExtends).fullName)) {
+        this.highlight_skin(skin);
+      }
+      // TODO: fix Sell mode
+      // if (!(skin as ISkinSellExtends).fullName) {
+      // }
       return skin;
     });
   }
-  highlight_skin(skin: ISkinExtends) {
-    const action_card = skin.element.querySelector<HTMLElement>(EnumSelectors.ACTION_CARD);
+  highlight_skin(skin: ISkinExtends | ISkinSellExtends) {
+    const action_card = skin.element.querySelector<HTMLElement>(EnumSelectors.HIGHLIGHT_SKIN);
     if (!action_card) return;
-    if (!skin.overpay || Object.keys(skin.overpay).length === 0) {
+    const overpay = (skin as ISkinExtends).overpay;
+    // (skin as ISkinSellExtends).price - (skin as ISkinSellExtends).defaultPrice;
+    if (!overpay || Object.keys(overpay).length === 0) {
       action_card.style.backgroundColor = config.colors.limitedUnSellable;
     } else {
-      const overpays: number[] = Object.values(skin.overpay);
+      const overpays: number[] = Object.values(overpay);
       const full_overpay = overpays.reduce((acc: number, cur: number) => acc + cur, 0);
       if (100 - ((skin.price - full_overpay) / skin.price) * 100 < config.minPercent) {
         action_card.style.backgroundColor = config.colors.limitedUnSellable;

@@ -84,3 +84,50 @@ export interface Sticker {
   img: string;
   wikiLink: string;
 }
+
+export interface ISkinSell {
+  className: string;
+  id: number;
+  assetId: number;
+  nameId: number;
+  appId: number;
+  price: number;
+  float?: string;
+  type: number;
+  quality?: Quality;
+  rarity: Rarity;
+  hasHighDemand: boolean;
+  img: string;
+  steamImg: string;
+  stickers?: string[];
+  overprice?: number;
+  defaultPrice: number;
+  hasTradeLock: boolean;
+  steamId: string;
+  botPrice: number;
+  overstockDiff: number;
+  lowestPrice: number | null;
+  isUnsellable: boolean;
+  collection: null | string;
+  inventoryType: string;
+  customError: null;
+  isSellError: boolean;
+  pattern?: Pattern;
+  isVirtual?: boolean;
+  isMarket?: boolean;
+  isStatTrak?: boolean;
+  userOverprice?: number;
+  listingTime?: number;
+  virtual?: boolean;
+  name?: string;
+  isSouvenir?: boolean;
+}
+export interface ISkinSellExtends extends ISkinSell {
+  element: HTMLElement;
+}
+export interface Pattern {
+  fade?: number;
+  blue?: number;
+  backSide?: number;
+  playSide?: number;
+}
